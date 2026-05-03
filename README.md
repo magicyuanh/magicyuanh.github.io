@@ -1,2 +1,2 @@
-# yuanhao.github.io
+# magicyuanh.github.io
 我的个人网站
