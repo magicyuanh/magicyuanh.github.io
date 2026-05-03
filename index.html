@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>袁昊 · AI负责人 · 工业AI架构师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        primary: '#2563eb', secondary: '#0891b2', accent: '#059669',
+                        dark: '#0f172a', darker: '#020617', surface: '#1e293b',
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        gradient: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #020617; color: #e2e8f0; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-strong { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(135deg, #2563eb 0%, #0891b2 50%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-border { position: relative; background: linear-gradient(135deg, #1e293b, #0f172a); }
+        .gradient-border::before { content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, #2563eb, #0891b2, #059669); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+        .hero-glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 0; }
+        .skill-tag { transition: all 0.3s ease; }
+        .skill-tag:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(37,99,235,0.3); }
+        .project-card { transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .project-card:hover { transform: translateY(-8px); }
+        .project-card:hover .project-overlay { opacity: 1; }
+        .project-overlay { opacity: 0; transition: opacity 0.4s ease; }
+        .timeline-line { background: linear-gradient(to bottom, #2563eb, #0891b2, #059669); }
+        .code-window { font-family: 'JetBrains Mono', monospace; }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background: linear-gradient(90deg, #2563eb, #0891b2); transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .scroll-reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .scroll-reveal.active { opacity: 1; transform: translateY(0); }
+        .metric-number { font-variant-numeric: tabular-nums; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .chip { display: inline-block; background: rgba(37,99,235,0.15); color: #93c5fd; font-size: 12px; padding: 2px 10px; border-radius: 12px; border: 1px solid rgba(37,99,235,0.25); }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: rgba(30,41,59,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; padding: 12px 24px; border-radius: 12px; font-size: 14px; opacity: 0; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); pointer-events: none; z-index: 999; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 w-full z-50 glass-strong border-b border-white/5 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-2xl font-bold gradient-text font-mono">&lt;AI/&gt;</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#" class="nav-link text-sm font-medium text-gray-300 hover:text-white transition-colors">首页</a>
+                        <a href="#about" class="nav-link text-sm font-medium text-gray-300 hover:text-white transition-colors">关于</a>
+                        <a href="#skills" class="nav-link text-sm font-medium text-gray-300 hover:text-white transition-colors">技术栈</a>
+                        <a href="#articles" class="nav-link text-sm font-medium text-gray-300 hover:text-white transition-colors">文章</a>
+                        <a href="#projects" class="nav-link text-sm font-medium text-gray-300 hover:text-white transition-colors">项目</a>
+                        <a href="#experience" class="nav-link text-sm font-medium text-gray-300 hover:text-white transition-colors">经历</a>
+                        <a href="#contact" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-medium hover:shadow-lg hover:shadow-primary/25 transition-all">联系我</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden glass-strong border-t border-white/5">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">关于</a>
+                <a href="#skills" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">技术栈</a>
+                <a href="#projects" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">项目</a>
+                <a href="#experience" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/5">经历</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-primary">联系我</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+        <div class="hero-glow"></div>
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center px-4 py-2 rounded-full glass mb-8 animate-float">
+                <span class="flex h-2 w-2 rounded-full bg-green-400 mr-2 animate-pulse"></span>
+                <span class="text-sm text-gray-300 font-mono">长沙</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                <span class="block text-white">袁昊</span>
+                <span class="block gradient-text mt-2">AI负责人 · 工业AI架构师</span>
+            </h1>
+            <div class="max-w-3xl mx-auto mb-8">
+                <p class="text-xl text-gray-400 leading-relaxed">
+                    湖南大学硕士 · 三一副总（22级·新能源）<br>
+                    懂<span class="text-primary font-medium">AI治理</span> · 懂<span class="text-secondary font-medium">工业场景</span> · 懂<span class="text-accent font-medium">工程化落地</span>
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3 justify-center mb-10">
+                <span class="chip">国际化项目经验</span>
+                <span class="chip">DAMA/DCMM</span>
+                <span class="chip">KG-RAG</span>
+                <span class="chip">大模型私有化部署</span>
+                <span class="chip">本体论Multi-Agent</span>
+                <span class="chip">AI落地</span>
+                <span class="chip">MLOps</span>
+                <span class="chip">战略规划</span>
+            </div>
+            <div class="flex flex-wrap gap-4 justify-center items-center">
+                <a href="#articles" class="px-6 py-3 rounded-full glass text-gray-300 font-medium hover:text-white hover:bg-white/10 transition-all border border-white/10">查看精选文章</a>
+                <a href="#projects" class="px-6 py-3 rounded-full glass text-gray-300 font-medium hover:text-white hover:bg-white/10 transition-all border border-white/10">查看核心项目</a>
+            </div>
+            <div class="mt-16 max-w-3xl mx-auto">
+                <div class="glass rounded-xl overflow-hidden text-left shadow-2xl shadow-primary/10">
+                    <div class="flex items-center px-4 py-3 border-b border-white/5 bg-white/5">
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                        </div>
+                        <span class="ml-4 text-xs text-gray-500 font-mono">ai_governance.py</span>
+                    </div>
+                    <div class="p-6 code-window text-sm overflow-x-auto">
+                        <pre class="text-gray-300"><span class="text-purple-400">class</span> <span class="text-yellow-300">IndustrialAIGovernance</span>:
+    <span class="text-purple-400">def</span> <span class="text-blue-400">__init__</span>(self):
+        self.framework = <span class="text-green-400">"DAMA/DCMM"</span>
+        self.stack = [<span class="text-green-400">"KG-RAG"</span>, <span class="text-green-400">"Ontology"</span>, <span class="text-green-400">"Multi-Agent"</span>]
+        self.scenario = <span class="text-green-400">"新能源/流程工业AI"</span>
+    <span class="text-purple-400">def</span> <span class="text-blue-400">bridge_gap</span>(self, business, tech):
+        <span class="text-gray-500"># Translate business pain to AI solution</span>
+        <span class="text-purple-400">return</span> self.govern(business) + self.deploy(tech)</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="py-12 border-y border-white/5 bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-3 gap-8 text-center max-w-3xl mx-auto">
+                <div class="scroll-reveal">
+                    <div class="text-3xl md:text-4xl font-bold gradient-text metric-number" data-target="10">0</div>
+                    <div class="text-sm text-gray-400 mt-2">+ 年 AI与工业智能实战经验</div>
+                </div>
+                <div class="scroll-reveal" style="transition-delay: 0.1s">
+                    <div class="text-3xl md:text-4xl font-bold gradient-text metric-number" data-target="200">0</div>
+                    <div class="text-sm text-gray-400 mt-2">+ 篇AI方法论文章</div>
+                </div>
+                <div class="scroll-reveal" style="transition-delay: 0.2s">
+                    <div class="text-3xl md:text-4xl font-bold gradient-text metric-number" data-target="7">0</div>
+                    <div class="text-sm text-gray-400 mt-2">项 认证与荣誉</div>
+                    <div class="text-xs text-primary mt-1">含2006年湖南省优秀硕士论文</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="scroll-reveal">
+                    <h2 class="text-sm font-mono text-primary mb-2">ABOUT ME</h2>
+                    <h3 class="text-3xl md:text-4xl font-bold text-white mb-6">不是AI技术人<br>是AI落地人</h3>
+                    <div class="space-y-4 text-gray-400 leading-relaxed">
+                        <p>我是袁昊，AI治理与工业智能架构师。湖南大学工学硕士，神经网络与数值模拟方向。2003年做神经网络，2024年做大模型，现在做独立AI技术顾问，这条线追了20年。</p>
+                        <p>我坚信AI的价值在于解决真实世界的业务问题。每一个项目都在回答同一个问题：<strong class="text-white">AI如何为工业创造可量化的价值？</strong></p>
+                    </div>
+                    <div class="mt-8 flex flex-wrap gap-4">
+
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 0c-1.657 0-3 4.03-3 9s1.343 9 3 9z"/></svg>
+                            <span>4年迪拜全英文工作环境 · TOEFL 84，可作为工作语言</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            <span>岳麓区第五届政协委员</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                            <a href="https://github.com/magicyuanh/HVAC-KG-RAG" target="_blank" class="hover:text-primary transition-colors">GitHub: HVAC-KG-RAG</a>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            <a href="https://blog.csdn.net/2501_90588492" target="_blank" class="hover:text-primary transition-colors">CSDN AI 博客</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="scroll-reveal relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-2xl"></div>
+                    <div class="relative glass rounded-2xl p-8 gradient-border">
+                        <h4 class="text-lg font-semibold text-white mb-6 font-mono">Core Competencies</h4>
+                        <div class="space-y-5">
+                            <div class="flex items-start gap-3">
+                                <span class="text-primary mt-0.5 text-lg">✦</span>
+                                <div><span class="text-sm font-medium text-white">AI治理体系</span><span class="text-sm text-gray-400 ml-2">DAMA/DCMM+KG-RAG+AI合规</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-secondary mt-0.5 text-lg">✦</span>
+                                <div><span class="text-sm font-medium text-white">知识图谱RAG</span><span class="text-sm text-gray-400 ml-2">四智能体流水线+SHACL校验 · 准确率98%+/时间节省90%</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-accent mt-0.5 text-lg">✦</span>
+                                <div><span class="text-sm font-medium text-white">大模型工程化</span><span class="text-sm text-gray-400 ml-2">Qwen2.5 32B私有化全链路 · 成本降90%/速度升3倍</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-emerald-400 mt-0.5 text-lg">✦</span>
+                                <div><span class="text-sm font-medium text-white">工业AI场景</span><span class="text-sm text-gray-400 ml-2">灯塔工厂+锂电和光伏产线 · 生产周期降40%/出库升50%</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-amber-400 mt-0.5 text-lg">✦</span>
+                                <div><span class="text-sm font-medium text-white">AI团队搭建</span><span class="text-sm text-gray-400 ml-2">从0到1组建十余人跨职能团队 · 统筹数百家供应商生态</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-primary mt-0.5 text-lg">✦</span>
+                                <div><span class="text-sm font-medium text-white">技术战略规划</span><span class="text-sm text-gray-400 ml-2">为企业制定AI技术路线图 · 从场景评估到技术选型到落地路径</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="py-24 bg-white/[0.01]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-sm font-mono text-primary mb-2">TECH STACK</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">技术能力矩阵</h3>
+
+            </div>
+            <div class="flex justify-center gap-6 mb-10 text-xs text-gray-400 scroll-reveal">
+                <span><span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1"></span> 精深掌握</span>
+                <span><span class="inline-block w-2 h-2 rounded-full bg-teal-400 mr-1"></span> 熟练应用</span>
+                <span><span class="inline-block w-2 h-2 rounded-full bg-gray-500 mr-1"></span> 了解使用</span>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass rounded-2xl p-8 scroll-reveal gradient-border hover:border-primary/50 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-4">AI治理与数据框架</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">工业AI</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">DAMA</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">DCMM</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">本体论</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">知识图谱</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">AI数据治理</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">数据血缘</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">数据安全法</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">PySpark</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-gray-500/10 text-gray-400 text-sm border border-gray-500/30">SQL</span>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-8 scroll-reveal gradient-border hover:border-secondary/50 transition-all" style="transition-delay:0.1s">
+                    <div class="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-4">大模型与RAG</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">Python</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">RAG</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">Multi-Agent</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">LangChain/LangGraph</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">Neo4j</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">向量数据库</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">BM25</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">Reranker</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">Qwen/DeepSeek</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">Prompt Engineering</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-gray-500/10 text-gray-400 text-sm border border-gray-500/30">Dify/Coze</span>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-8 scroll-reveal gradient-border hover:border-accent/50 transition-all" style="transition-delay:0.2s">
+                    <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-4">MLOps与工程部署</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">C++</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">PyTorch</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">Docker</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-blue-400/10 text-blue-300 text-sm border border-blue-400/30">FastAPI</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">vLLM</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">Ollama</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">LoRA/QLoRA</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">LLaMA-Factory</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">GGUF/llama.cpp</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-teal-400/10 text-teal-300 text-sm border border-teal-400/20">Streamlit</span>
+                        <span class="skill-tag px-3 py-1 rounded-full bg-gray-500/10 text-gray-400 text-sm border border-gray-500/30">K8s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARTICLES -->
+    <section id="articles" class="py-24 relative bg-white/[0.01]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-sm font-mono text-primary mb-2">ARTICLES</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">精选文章</h3>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <a href="https://blog.csdn.net/2501_90588492/article/details/159885978?spm=1001.2014.3001.5502" target="_blank" class="glass rounded-xl p-6 scroll-reveal gradient-border hover:border-primary/30 transition-all group block">
+                    <span class="text-xs font-mono text-primary">AI治理</span>
+                    <h4 class="text-white font-semibold mt-2 mb-2 group-hover:text-primary transition-colors">为什么工业AI必须引入本体论</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">从DAMA/DCMM框架出发，论证本体论在工业AI治理中的核心价值——没有本体论的AI治理只是空中楼阁。</p>
+                    <p class="text-gray-500 text-xs mt-3">1k 阅读 · CSDN</p>
+                </a>
+                <a href="https://blog.csdn.net/2501_90588492/article/details/160743522?spm=1001.2014.3001.5501" target="_blank" class="glass rounded-xl p-6 scroll-reveal gradient-border hover:border-primary/30 transition-all group block" style="transition-delay:0.05s">
+                    <span class="text-xs font-mono text-secondary">场景挖掘</span>
+                    <h4 class="text-white font-semibold mt-2 mb-2 group-hover:text-secondary transition-colors">AI落地三原则</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">业务优先级、数据就绪度和组织适配度——评估AI场景可行性的三层筛选框架。</p>
+                    <p class="text-gray-500 text-xs mt-3">500+ 阅读 · CSDN</p>
+                </a>
+                <a href="https://blog.csdn.net/2501_90588492/article/details/159998653?spm=1001.2014.3001.5502" target="_blank" class="glass rounded-xl p-6 scroll-reveal gradient-border hover:border-primary/30 transition-all group block" style="transition-delay:0.1s">
+                    <span class="text-xs font-mono text-accent">技术战略</span>
+                    <h4 class="text-white font-semibold mt-2 mb-2 group-hover:text-accent transition-colors">人工智能+：逆势而行的战略破局</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">在行业普遍观望时布局AI的战略逻辑——从技术趋势研判到组织能力储备，构建逆周期破局的核心竞争力。</p>
+                    <p class="text-gray-500 text-xs mt-3">1.6k 阅读 · CSDN</p>
+                </a>
+                <a href="https://blog.csdn.net/2501_90588492/article/details/159887296?spm=1001.2014.3001.5502" target="_blank" class="glass rounded-xl p-6 scroll-reveal gradient-border hover:border-primary/30 transition-all group block" style="transition-delay:0.15s">
+                    <span class="text-xs font-mono text-primary">大模型落地</span>
+                    <h4 class="text-white font-semibold mt-2 mb-2 group-hover:text-primary transition-colors">泥泞中的RAG</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">大模型RAG落地的真实困境与解决方案——从"能用"到"好用"的关键技术选型。</p>
+                    <p class="text-gray-500 text-xs mt-3">500+ 阅读 · CSDN</p>
+                </a>
+                <a href="https://blog.csdn.net/2501_90588492/article/details/160744029?spm=1001.2014.3001.5501" target="_blank" class="glass rounded-xl p-6 scroll-reveal gradient-border hover:border-primary/30 transition-all group block" style="transition-delay:0.2s">
+                    <span class="text-xs font-mono text-secondary">组织与团队</span>
+                    <h4 class="text-white font-semibold mt-2 mb-2 group-hover:text-secondary transition-colors">泰勒制的崩塌 - 上</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">从泰勒制的六大隐含前提在AI时代的崩塌，论证组织变革的底层逻辑——当机器比人更廉价稳定，管理的本质正在被重写。</p>
+                    <p class="text-gray-500 text-xs mt-3">500+ 阅读 · CSDN</p>
+                </a>
+                <a href="https://blog.csdn.net/2501_90588492/article/details/160443937?spm=1001.2014.3001.5502" target="_blank" class="glass rounded-xl p-6 scroll-reveal gradient-border hover:border-primary/30 transition-all group block" style="transition-delay:0.25s">
+                    <span class="text-xs font-mono text-accent">AI平台</span>
+                    <h4 class="text-white font-semibold mt-2 mb-2 group-hover:text-accent transition-colors">从RAG到数据治理：本体论驱动的AI数据底座实践</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">本体论如何打通RAG与数据治理——从数据分类分级到知识图谱构建，为企业AI落地搭建可治理的数据底座。</p>
+                    <p class="text-gray-500 text-xs mt-3">500+ 阅读 · CSDN</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-sm font-mono text-primary mb-2">PROJECTS</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">核心项目</h3>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="project-card glass rounded-2xl overflow-hidden scroll-reveal gradient-border group">
+                    <div class="p-1">
+                        <div class="h-48 bg-gradient-to-br from-primary/20 to-blue-900/30 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10">
+                                <svg class="w-full h-full" viewBox="0 0 400 200" fill="none"><path d="M0 100 Q 50 50, 100 100 T 200 100 T 300 100 T 400 100" stroke="#2563eb" stroke-width="1"/><path d="M0 150 Q 50 100, 100 150 T 200 150 T 300 150 T 400 150" stroke="#0891b2" stroke-width="1"/><circle cx="100" cy="100" r="3" fill="#2563eb"/><circle cx="200" cy="100" r="3" fill="#2563eb"/><circle cx="300" cy="100" r="3" fill="#2563eb"/></svg>
+                            </div>
+                            <svg class="w-16 h-16 text-primary relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-xs font-mono text-primary">开源 · MIT</span>
+                                <span class="text-xs text-gray-500">|</span>
+                                <span class="text-xs font-mono text-gray-400">70+ Stars</span>
+                                <span class="text-xs text-gray-500">|</span>
+                                <span class="text-xs font-mono text-gray-400">v1.1.0</span>
+                            </div>
+                            <h4 class="text-xl font-semibold text-white mb-2">HVAC-KG-RAG</h4>
+                            <p class="text-gray-400 text-sm mb-4">企业级知识图谱RAG平台。四智能体（激进→保守→对抗→裁决）知识提取流水线+三路混合检索+指代消解（34项审计规则），生产级降级能力，Docker化企业部署。时间节省约90%，实测准确率98%以上。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="chip">Neo4j</span>
+                                <span class="chip">LangChain</span>
+                                <span class="chip">BGE/Reranker</span>
+                                <span class="chip">FastAPI</span>
+                                <span class="chip">Docker</span>
+                            </div>
+                            <a href="https://github.com/magicyuanh/HVAC-KG-RAG" target="_blank" class="inline-flex items-center gap-2 text-sm text-primary hover:text-blue-300 transition-colors">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card glass rounded-2xl overflow-hidden scroll-reveal gradient-border group" style="transition-delay:0.1s">
+                    <div class="p-1">
+                        <div class="h-48 bg-gradient-to-br from-secondary/20 to-teal-900/30 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10">
+                                <svg class="w-full h-full" viewBox="0 0 400 200" fill="none"><rect x="50" y="30" width="70" height="40" rx="4" stroke="#0891b2" stroke-width="1" fill="none"/><rect x="140" y="30" width="70" height="40" rx="4" stroke="#0891b2" stroke-width="1" fill="none"/><rect x="230" y="30" width="70" height="40" rx="4" stroke="#0891b2" stroke-width="1" fill="none"/><path d="M85 70 L85 130 Q85 140 95 140 L105 140 Q115 140 115 130 L115 70" stroke="#0891b2" stroke-width="1" fill="none"/></svg>
+                            </div>
+                            <svg class="w-16 h-16 text-secondary relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-xs font-mono text-secondary">私有化部署</span>
+                                <span class="text-xs text-gray-500">|</span>
+                                <span class="text-xs font-mono text-gray-400">Qwen2.5 32B</span>
+                            </div>
+                            <h4 class="text-xl font-semibold text-white mb-2">微调大模型私有化部署方案</h4>
+                            <p class="text-gray-400 text-sm mb-4">端到端企业级微调大模型私有化部署方案。从vLLM/sglang推理加速、LoRA/QLoRA微调到Milvus向量数据库集成，结合Ollama/MCP/CodeBuddy实现自动化运维。相比调用外部API，成本降低约90%，推理速度提高3倍。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="chip">vLLM</span>
+                                <span class="chip">Qwen2.5</span>
+                                <span class="chip">LoRA</span>
+                                <span class="chip">Milvus</span>
+                                <span class="chip">Docker</span>
+                                <span class="chip">K8s</span>
+                            </div>
+                            <span class="inline-flex items-center gap-2 text-sm text-gray-400">
+                                <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                已完成多轮压力测试
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card glass rounded-2xl overflow-hidden scroll-reveal gradient-border group" style="transition-delay:0.2s">
+                    <div class="p-1">
+                        <div class="h-48 bg-gradient-to-br from-accent/20 to-emerald-900/30 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10">
+                                <svg class="w-full h-full" viewBox="0 0 400 200" fill="none"><circle cx="100" cy="80" r="30" stroke="#059669" stroke-width="1" fill="none"/><circle cx="200" cy="80" r="30" stroke="#059669" stroke-width="1" fill="none"/><circle cx="300" cy="80" r="30" stroke="#059669" stroke-width="1" fill="none"/><path d="M130 80 L170 80 M230 80 L270 80" stroke="#059669" stroke-width="1"/><path d="M100 110 L100 140 Q100 150 110 150 L190 150 Q200 150 200 140 L200 110" stroke="#059669" stroke-width="1" fill="none"/></svg>
+                            </div>
+                            <svg class="w-16 h-16 text-accent relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-xs font-mono text-accent">数据流水线</span>
+                                <span class="text-xs text-gray-500">|</span>
+                                <span class="text-xs font-mono text-gray-400">自动化</span>
+                            </div>
+                            <h4 class="text-xl font-semibold text-white mb-2">本体论Multi-Agent流水线</h4>
+                            <p class="text-gray-400 text-sm mb-4">基于本体论的Multi-Agent数据处理流水线，实现知识提取、清洗、对齐、存储的全流程自动化。DAMA/DCMM框架指导下的数据治理落地实践。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="chip">Ontology</span>
+                                <span class="chip">Multi-Agent</span>
+                                <span class="chip">DAMA</span>
+                                <span class="chip">Airflow</span>
+                                <span class="chip">Python</span>
+                                <span class="chip">Neo4j</span>
+                            </div>
+                            <span class="inline-flex items-center gap-2 text-sm text-gray-400">
+                                <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                持续迭代中
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="py-24 bg-white/[0.01] relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-sm font-mono text-primary mb-2">EXPERIENCE</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">工作经历</h3>
+                
+            </div>
+            <div class="relative">
+                <div class="absolute left-8 top-0 bottom-0 w-0.5 timeline-line hidden md:block"></div>
+                <div class="space-y-12">
+                    <div class="relative scroll-reveal pl-0 md:pl-20">
+                        <div class="hidden md:flex absolute left-4 top-6 w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full items-center justify-center transform -translate-x-1/2 z-10 shadow-lg shadow-primary/30">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div class="glass rounded-2xl p-8 gradient-border hover:border-primary/30 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">AI技术独立顾问</h4>
+                                    <p class="text-primary font-mono text-sm mt-1">自由职业</p>
+                                </div>
+                                <span class="text-gray-500 text-sm font-mono mt-2 md:mt-0">2023 - 至今</span>
+                            </div>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li>• 主导<strong class="text-gray-300">HVAC-KG-RAG</strong>知识图谱RAG平台设计开发（开源·MIT协议），核心为<strong class="text-gray-300">本体论Multi-Agent流水线</strong>自动化数据治理实践</li>
+                                <li>• 构建<strong class="text-gray-300">AI治理知识体系</strong>，公众号输出200+篇AI/数据治理深度文章，CSDN 37篇</li>
+                                <li>• 搭建<strong class="text-gray-300">AI商业情报系统</strong>，打通外部互联网信息与企业内部ERP等业务系统数据</li>
+                                <li>• 为多家企业制定<strong class="text-gray-300">AI技术路线图</strong>，从业务场景优先级评估到技术选型决策，提供可落地AI战略规划</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="relative scroll-reveal pl-0 md:pl-20" style="transition-delay:0.1s">
+                        <div class="hidden md:flex absolute left-4 top-6 w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full items-center justify-center transform -translate-x-1/2 z-10 shadow-lg shadow-primary/30">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <div class="glass rounded-2xl p-8 gradient-border hover:border-primary/30 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">副总</h4>
+                                    <p class="text-primary font-mono text-sm mt-1">三一集团 · 新能源事业部</p>
+                                </div>
+                                <span class="text-gray-500 text-sm font-mono mt-2 md:mt-0">2019 - 2023</span>
+                            </div>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li>• 从0到1组建团队，统筹<strong class="text-gray-300">灯塔工厂</strong>改造，生产周期从22天压缩至15天（降40%），出库效率从2天压缩至1天（升50%）</li>
+                                <li>• 主管<strong class="text-gray-300">新能源产线建设</strong>，深度参与三一锂电和光伏产线从0到1，在规划阶段即引入智能化设计</li>
+                                <li>• 统筹<strong class="text-gray-300">数百家供应商与合作伙伴</strong>的生态资源调配，确保多基地高效协同</li>
+                                <li>• 推进<strong class="text-gray-300">产线自动化与智能化升级</strong>，为后续AI落地奠定数据与系统基础</li>
+                                <li>• 以全球视野规划<strong class="text-gray-300">多基地智能化方案</strong>与技术架构复制</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="relative scroll-reveal pl-0 md:pl-20" style="transition-delay:0.2s">
+                        <div class="hidden md:flex absolute left-4 top-6 w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full items-center justify-center transform -translate-x-1/2 z-10 shadow-lg shadow-primary/30">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="glass rounded-2xl p-8 gradient-border hover:border-primary/30 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">项目负责人</h4>
+                                    <p class="text-primary font-mono text-sm mt-1">阿里巴巴</p>
+                                </div>
+                                <span class="text-gray-500 text-sm font-mono mt-2 md:mt-0">2017 - 2019</span>
+                            </div>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li>• 主导<strong class="text-gray-300">蚂蚁金服全球总部智能化运营</strong>与IDC数据中心建设</li>
+                                <li>• 建立<strong class="text-gray-300">能源管理AI模型</strong>，优化PUE指标</li>
+                                <li>• 建立<strong class="text-gray-300">数万台设备的IoT网络</strong></li>
+                                <li>• 引入数据驱动的<strong class="text-gray-300">运维决策分析</strong>体系</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="relative scroll-reveal pl-0 md:pl-20" style="transition-delay:0.3s">
+                        <div class="hidden md:flex absolute left-4 top-6 w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full items-center justify-center transform -translate-x-1/2 z-10 shadow-lg shadow-primary/30">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="glass rounded-2xl p-8 gradient-border hover:border-primary/30 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">总监</h4>
+                                    <p class="text-primary font-mono text-sm mt-1">中信 / 金茂</p>
+                                </div>
+                                <span class="text-gray-500 text-sm font-mono mt-2 md:mt-0">2010 - 2017</span>
+                            </div>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li>• 负责大型复杂数字化项目管理</li>
+                                <li>• 统筹<strong class="text-gray-300">多线并行项目资源调配</strong>，跨部门协调与供应商生态管理</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="relative scroll-reveal pl-0 md:pl-20" style="transition-delay:0.4s">
+                        <div class="hidden md:flex absolute left-4 top-6 w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full items-center justify-center transform -translate-x-1/2 z-10 shadow-lg shadow-primary/30">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21l12-12m0 0l-4-4m4 4l4-4m-4 4v12"/></svg>
+                        </div>
+                        <div class="glass rounded-2xl p-8 gradient-border hover:border-primary/30 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-semibold text-white">经理</h4>
+                                    <p class="text-primary font-mono text-sm mt-1">中海 · 迪拜</p>
+                                </div>
+                                <span class="text-gray-500 text-sm font-mono mt-2 md:mt-0">2006 - 2010</span>
+                            </div>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li>• 负责<strong class="text-gray-300">迪拜大型综合项目</strong>全过程管理，4年全英文工作环境</li>
+                                <li>• 统筹<strong class="text-gray-300">跨文化团队与海外供应商</strong>协调，熟悉国际工程标准与商务惯例</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-sm font-mono text-primary mb-2">CONTACT</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">保持联系</h3>
+
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="glass rounded-2xl p-8 md:p-12 scroll-reveal gradient-border">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <a href="mailto:188954804@qq.com" class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-all">
+                                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">邮箱</p>
+                                    <p class="text-gray-200 group-hover:text-primary transition-colors">188954804@qq.com</p>
+                                </div>
+                            </a>
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">手机</p>
+                                    <p class="text-gray-200">13975827231（微信同号）</p>
+                                </div>
+                            </div>
+                            <a href="https://github.com/magicyuanh/HVAC-KG-RAG" target="_blank" class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center group-hover:bg-secondary/30 transition-all">
+                                    <svg class="w-6 h-6 text-secondary" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">GitHub</p>
+                                    <p class="text-gray-200 group-hover:text-secondary transition-colors">github.com/magicyuanh/HVAC-KG-RAG</p>
+                                </div>
+                            </a>
+                            <a href="https://blog.csdn.net/2501_90588492" target="_blank" class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center group-hover:bg-accent/30 transition-all">
+                                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">CSDN</p>
+                                    <p class="text-gray-200 group-hover:text-accent transition-colors">blog.csdn.net/2501_90588492</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="glass rounded-xl p-6 space-y-4">
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                正在寻找<strong class="text-primary">AI负责人</strong>岗位机会，也欢迎项目合作与技术交流。关注微信公众号 <strong class="text-white">「magicyuan的AI随笔记」</strong>，获取最新AI治理与技术洞察。
+                            </p>
+                            <div class="pt-4 flex flex-wrap gap-3">
+                                <button onclick="copyEmail()" class="px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-medium hover:shadow-lg hover:shadow-primary/25 transition-all cursor-pointer">复制邮箱</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">📋 已复制到剪贴板，期待联系</div>
+
+    <!-- FOOTER -->
+    <footer class="py-12 border-t border-white/5 bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <span class="text-2xl font-bold gradient-text font-mono">&lt;AI/&gt;</span>
+            </div>
+            <div class="text-center mt-8 text-gray-600 text-xs font-mono">
+                &copy; 2026 袁昊 · Built with &lt;AI/&gt;
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        let lastScroll = 0;
+        window.addEventListener('scroll', function() {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                navbar.style.background = 'rgba(2, 6, 23, 0.95)';
+                navbar.style.backdropFilter = 'blur(20px)';
+            } else {
+                navbar.style.background = 'rgba(30, 41, 59, 0.7)';
+            }
+            lastScroll = currentScroll;
+        });
+
+        // Scroll Reveal
+        function isInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            return rect.top <= window.innerHeight * 0.85;
+        }
+
+        function revealOnScroll() {
+            document.querySelectorAll('.scroll-reveal').forEach(function(el) {
+                if (isInViewport(el)) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+
+        // Number counter animation
+        function animateCounter(el) {
+            const target = parseInt(el.getAttribute('data-target'));
+            let current = 0;
+            const increment = Math.ceil(target / 40);
+            const timer = setInterval(function() {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                el.textContent = current;
+            }, 40);
+        }
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.metric-number').forEach(function(el) {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href === '#') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+                // Close mobile menu if open
+                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Copy email to clipboard
+        function copyEmail() {
+            const email = '188954804@qq.com';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(email).then(() => showToast());
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = email;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast();
+            }
+        }
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        console.log('%c<AI/> %c袁昊 · AI治理与工业智能架构师', 'color:#2563eb;font-size:20px;font-weight:bold', 'color:#0891b2;font-size:14px');
+    </script>
+
+</body>
+</html>
